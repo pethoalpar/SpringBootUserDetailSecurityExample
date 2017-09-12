@@ -320,3 +320,194 @@ liquibase.change-log=classpath:/db/changelog/db.changelog-master.xml
 
 </databaseChangeLog>
 ```
+
+<h3>Create user table</h3>
+
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+
+    <changeSet author="pethoalpar" id="tbl_user" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not> <tableExists tableName="user" /> </not>
+        </preConditions>
+        <createTable tableName="user">
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="pethoalpar" id="uk_user_1" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not> <indexExists indexName="uk_user_1" /> </not>
+        </preConditions>
+        <addUniqueConstraint
+                constraintName="uk_user_1"
+                tableName="user"
+                columnNames="user_name"/>
+    </changeSet>
+
+    <changeSet author="pethoalpar" id="fk_user_1" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not> <foreignKeyConstraintExists foreignKeyName="fk_user_1" /> </not>
+        </preConditions>
+        <addForeignKeyConstraint constraintName="fk_user_1"
+                                 baseTableName="user"
+                                 baseColumnNames="role_id"
+                                 referencedTableName="role"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>
+```
+
+<h3>Add liquibase config file</h3>
+
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+
+
+    <include file="/db/changelog/create_role.xml"/>
+    <include file="/db/changelog/create_user.xml"/>
+
+</databaseChangeLog>
+```
+
+<h3>Add about file</h3>
+
+```html
+<!DOCTYPE html>
+<html>
+
+<body>
+<div class="starter-template">
+    <h1>Normal page (No login need)</h1>
+</div>
+
+</body>
+</html>
+```
+
+<h3>Add admin page</h3>
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="starter-template">
+    <h1>Admin page (Login need)</h1>
+    <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out"/>
+    </form>
+</div>
+</body>
+</html>
+```
+
+<h3>Add home page</h3>
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="starter-template">
+    <h1>Spring security</h1>
+    <h2>1. <a th:href="@{/admin}">Admin page</a></h2>
+    <h2>1. <a th:href="@{/user}">User page</a></h2>
+    <h2>1. <a th:href="@{/login}">Login page</a></h2>
+    <h2>1. <a th:href="@{/about}">Not protected page</a></h2>
+</div>
+</body>
+</html>
+```
+
+<h3>Error page</h3>
+
+```html
+<!DOCTYPE html>
+<html>
+<body>
+<div class="starter-template">
+    <h1>You do not have access</h1>
+</div>
+</body>
+</html>
+```
+
+<h3>Login page</h3>
+
+```html
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<form th:action="@{/login}" method="post">
+    <fieldset>
+        <h1>Please sign in</h1>
+
+        <div th:if="${param.error}">
+            <div class="alert alert-danger">
+                Invalid user name and password!
+            </div>
+        </div>
+
+        <div th:if="${param.logout}">
+            <div class="alert alert-info">
+                You have been logged out!
+            </div>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="username" id="username" class="form-control input-lg"
+                   placeholder="UserName" required="true" autofocus="true"/>
+        </div>
+
+        <div class="form-group">
+            <input type="password" name="password" id="password" class="form-control input-lg"
+                   placeholder="Password" required="true"/>
+        </div>
+
+        <div class="row">
+            <input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign In"/>
+        </div>
+    </fieldset>
+</form>
+</body>
+</html>
+```
+
+<h3>User page</h3>
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="starter-template">
+    <h1>User page (Login need)</h1>
+    <h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out"/>
+    </form>
+</div>
+</body>
+</html>
+```
